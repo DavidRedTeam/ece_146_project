@@ -33,6 +33,8 @@ while (router1 == None):
 		router1 = router
 		print("Router 1 is connected")
 
+
+#TODO: FIX ARP TABLE TO INCLUDE THE OTHER ROUTERS
 arp_table_socket = {router1_ip: router1}
 arp_table_mac = {router1_ip: router1_mac}
 

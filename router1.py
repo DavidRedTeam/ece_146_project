@@ -40,13 +40,9 @@ while (client1 == None or router2 == None or router3 == None):
 	if (client1 == None):
 		client1 = client
 		print("Client 1 is online")
-	elif (router2 == None):
-		router2 = client
-		print("Router 2 is connected")
-	else:
-		router3 = client
-		print("Router3 is connected")
 
+
+#TODO: FIX ARP TABLE TO INCLUDE THE OTHER ROUTERS
 #simple arp table, keeps track of client IP addresses TODO: add more clients 
 arp_table_socket = {client1_ip: client1, router2_ip: router2, router3_ip: router3}
 #keeps track of client MAC addresses TODO: add more clients
