@@ -1,45 +1,40 @@
+#has connection from router1 needs to connect to router3
+
 import socket
 import time
 
-#router socket
-router = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-router.bind(("Localhost", 2000))
+router2 = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+router2.bind(("Localhost", 2002))
 
-#socket for clients to connect to
-router_send = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-router_send.bind(("Localhost", 2001))
 
 #router mac address
-router_mac = "05:10:0A:CB:24:EF"
+router1_ip = "192.168.1.1"
+router1_mac = "05:10:0A:CB:24:EF"
 
-#server 
-server  = ("Localhost", 8000)
+router2_ip = "192.168.1.3"
+router2_mac = "05:10:0A:DC:35:AF"
 
-#clients TODO: add more clients
-client1_ip = "192.168.1.2"
-client1_mac = "12:AB:6A:BA:DD:C6"
+router3_ip = "192.168.1.3"
+router3_mac = "05:10:0A:DF:5A:4A"
 
+#connect to router3
+router3 = ("Localhost", 2003)
 
-#Listen for clients, number for listen can be change for the amount of clients
-router_send.listen(1)
+#Listen for router1 connection
 
-client1 = None
+router2.listen(1)
 
-while (client1 == None):
-	client, address = router_send.accept()
+router1 = None
 
-	if (client1 == None):
-		client1 = client
-		print("Client 1 is online")
+while (router1 == None):
+	router, address = router2.accept()
 
-#simple arp table, keeps track of client IP addresses TODO: add more clients 
-arp_table_socket = {client1_ip: client1}
-#keeps track of client MAC addresses TODO: add more clients
-arp_table_mac = {client1_ip: client1_mac}
+	if (router1 == None):
+		router1 = router
+		print("Router 1 is connected")
 
-#connect router to server
-router.connect(server)
-
+arp_table_socket = {router1_ip: router1}
+arp_table_mac = {router1_ip: router1_mac}
 
 while True:
 	received_message = router.recv(1024)
