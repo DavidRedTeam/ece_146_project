@@ -35,7 +35,7 @@ while (client1 == None):
 #simple arp table, keeps track of client IP addresses TODO: add more clients 
 arp_table_socket = {client1_ip: client1}
 #keeps track of client MAC addresses TODO: add more clients
-arp_table_mac = {client1_mac: client1_mac}
+arp_table_mac = {client1_ip: client1_mac}
 
 #connect router to server
 router.connect(server)
@@ -46,13 +46,18 @@ while True:
 	received_message = received_message.decode("utf-8")
 	
 	#parsing the packet
-	source_mac = received_message[0:17]
-	destination_mac = received_message[17:34]
-	source_ip = received_message[34:45]
-	destination_ip = received_message[45:56]
-	message = received_message[56:]
+	source_mac = received_message[0:15]
+	print(source_mac)
+	destination_mac = received_message[15:32]
+	print(destination_mac)
+	source_ip = received_message[32:43]
+	print(source_ip)
+	destination_ip = received_message[43:54]
+	print(destination_ip)
+	message = received_message[54:]
+	print(message)
 
-	print("The packed received:\n Source MAC address: {source_mac}, Destination MAC address: {destination_mac}".format(source_mac = source_mac, destination_mac = destination_mac))
+	print("The packet received:\n Source MAC address: {source_mac}, Destination MAC address: {destination_mac}".format(source_mac = source_mac, destination_mac = destination_mac))
 
 	print("\nSource IP address: {source_ip}, Destination IP address: {destination_ip}".format(source_ip=source_ip, destination_ip=destination_ip))
 

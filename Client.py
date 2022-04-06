@@ -7,7 +7,7 @@ client_mac = "12:AB:6A:BA:DD:C6"
 
 #Identifying the router we want to connect to. *Note that the socket will act as the ip since we are
 #defining the client, routers, and server on the same computer.
-router1 = ("LocalHost", 2000)
+router1 = ("LocalHost", 2001)
 
 #make the socket
 client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
