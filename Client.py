@@ -6,11 +6,11 @@ import time
 client_ip = "192.168.1.2"
 client_mac = "12:AB:6A:BA:DD:C6"
 
-<<<<<<< Updated upstream
+
 #Identifying the router we want to connect to. *Note that the socket will act as the ip since we are
 #defining the client, routers, and server on the same computer.
 router1 = ("LocalHost", 2001)
-=======
+
 #server info
 server_ip = "192.168.0.1"
 server_mac = "12:AB:6A:DD:CC:10"
@@ -18,7 +18,7 @@ server_mac = "12:AB:6A:DD:CC:10"
 # Identifying the router we want to connect to. *Note that the socket will act as the ip since we are
 # defining the client, routers, and server on the same computer.
 router1 = ("LocalHost", 2000)
->>>>>>> Stashed changes
+
 
 # make the socket
 client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -46,23 +46,24 @@ def deCapsulate(msg):
     # source_ip = msg[34:45]
     # destination_ip = msg[45:56]
     # message = msg[56:]
-    print("Source MAC: ",  msg[0:17],"Destination MAC ", msg[17:34],
-          "Source IP: ", msg[34:45], "Destination IP: ", msg[45:56],
-          "Message: ", msg[56:])
+    print("Source MAC: ",  msg[0:17]," Destination MAC: ", msg[17:34],
+          " Source IP: ", msg[34:45], " Destination IP: ", msg[45:56],
+          " Message: ", msg[56:])
 
 
 connected = True
 while connected:
-    message = input()
+    message = input("client2server>")
 
     if message.find("quit") != -1: connected = False
     outgoing_frame = outgoing_frame + message
-    client.sendall(bytes(outgoing_frame, "utf-8"))
+    client.send(bytes(outgoing_frame, "utf-8"))
+    outgoing_frame = outgoing_frame[0:56]
     recv_message = client.recv(1024).decode("utf-8")
 
     deCapsulate(recv_message)
 
-    outgoing_frame = " "
+
 
 
 
