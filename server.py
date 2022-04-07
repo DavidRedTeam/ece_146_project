@@ -1,7 +1,7 @@
 import socket
 import time
 server_ip = "192.168.0.1"
-server_mac = "12:AB:6A:DD:C10"
+server_mac = "12:AB:6A:DD:CC:10"
 
 router3_mac = "05:10:0A:CB:24:EF"
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)

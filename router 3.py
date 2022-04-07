@@ -46,23 +46,18 @@ while (router1 == None or router2 == None or server == None):
 arp_table_socket = {router1_ip: router1, router2_ip: router2, server_ip: server}
 arp_table_mac = {router1_ip: router1_mac, router2_ip: router2_mac, server_ip: server_mac}
 
-router.connect(router3)
+router.connect(server)
 
 while True:
 	received_message = router.recv(1024)
 	received_message = received_message.decode("utf-8")
 	
 	#parsing the packet
-	source_mac = received_message[0:15]
-	print(source_mac)
-	destination_mac = received_message[15:32]
-	print(destination_mac)
-	source_ip = received_message[32:43]
-	print(source_ip)
-	destination_ip = received_message[43:54]
-	print(destination_ip)
-	message = received_message[54:]
-	print(message)
+	source_mac = received_message[0:17]
+	destination_mac = received_message[17:34]
+	source_ip = received_message[34:45]
+	destination_ip = received_message[45:56]
+	message = received_message[56:]
 
 	print("The packet received:\n Source MAC address: {source_mac}, Destination MAC address: {destination_mac}".format(source_mac = source_mac, destination_mac = destination_mac))
 
@@ -70,7 +65,7 @@ while True:
 
 	print("\n Message: " + message)
 
-	ethernet_header = router3_mac + arp_table_mac[destination_ip]
+	ethernet_header = router_mac + arp_table_mac[destination_ip]
 
 	IP_header = source_ip + destination_ip
 
