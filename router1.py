@@ -42,7 +42,7 @@ while (client1 == None or router2 == None):
         print("Client 1 is online")
     if (router2 == None):
         router2 = client
-        print("Client 1 is online")
+        print("Router 2 is online")
 
 # TODO: FIX ARP TABLE TO INCLUDE THE OTHER ROUTERS
 # simple arp table, keeps track of client IP addresses TODO: add more clients
