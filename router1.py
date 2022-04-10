@@ -26,7 +26,7 @@ client1_mac = "12:AB:6A:BA:DD:C6"
 router2_ip = "192.168.1.3"
 router2_mac = "05:10:0A:DC:35:AF"
 
-router3_ip = "192.168.1.3"
+router3_ip = "192.168.1.4"
 router3_mac = "05:10:0A:DF:5A:4A"
 
 # Listen for clients, number for listen can be change for the amount of clients
