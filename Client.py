@@ -17,7 +17,7 @@ server_mac = "12:AB:6A:DD:CC:10"
 
 # Identifying the router we want to connect to. *Note that the socket will act as the ip since we are
 # defining the client, routers, and server on the same computer.
-router1 = ("LocalHost", 2000)
+#router1 = ("LocalHost", 2000)
 
 
 # make the socket
@@ -57,7 +57,7 @@ while connected:
 
     if message.find("quit") != -1: connected = False
     outgoing_frame = outgoing_frame + message
-    client.send(bytes(outgoing_frame, "utf-8"))
+    client.sendall(bytes(outgoing_frame, "utf-8"))
     outgoing_frame = outgoing_frame[0:56]
     recv_message = client.recv(1024).decode("utf-8")
 
