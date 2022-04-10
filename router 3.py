@@ -15,7 +15,7 @@ router1_mac = "05:10:0A:CB:24:EF"
 router2_ip = "192.168.1.3"
 router2_mac = "05:10:0A:DC:35:AF"
 
-router3_ip = "192.168.1.3"
+router3_ip = "192.168.1.4"
 router3_mac = "05:10:0A:DF:5A:4A"
 
 #server info
