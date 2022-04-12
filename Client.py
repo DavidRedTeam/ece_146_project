@@ -55,7 +55,7 @@ connected = True
 while connected:
     message = input("client2server>")
 
-    if message.find("quit") != -1: connected = False
+    if message.find("quit") != -1: client.close()
     outgoing_frame = outgoing_frame + message
     client.sendall(bytes(outgoing_frame, "utf-8"))
     outgoing_frame = outgoing_frame[0:56]

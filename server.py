@@ -31,7 +31,7 @@ def deCapsulate(msg):
 while True:
     routerCon, addr = s.accept()
     if(routerCon != None):
-        print("Router 1 connected ")
+        print("Router 3 connected ")
         break
 
 while True:

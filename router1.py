@@ -4,15 +4,19 @@ import socket
 import time
 
 # router socket
-server = ("LocalHost", 8000)
-router2server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-# router2server.bind(("Localhost", 2000))
-router2server.connect(server)
+router2 = ("LocalHost", 2002)
+router12router2 = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+# router12router2.bind(("Localhost", 2000))
+router12router2.connect(router2)
 
 # socket for clients to connect to
 router2client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 router2client.bind(("Localhost", 2001))
 router2client.listen(1)
+
+router3 = ("LocalHost", 2004)
+router12router3 = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+router12router3.connect(router3)
 
 # router mac address
 router1_ip = "192.168.1.1"
@@ -44,7 +48,8 @@ router3_mac = "05:10:0A:DF:5A:4A"
 
 
 # client1 = None
-
+route1to2 = 2
+route1to3 = 1
 clientRouter, address = router2client.accept()
 if clientRouter:
 	print("Client Connected")
@@ -53,19 +58,25 @@ if clientRouter:
 while True:
 	message = clientRouter.recv(1024).decode("utf-8")
 
-
 	# if (client1 == None):
 	client1 = clientRouter
-	print("Client 1 is online")
+	#print("Client 1 is online")
 
-# router.connect(router2)
-# router.connect(router3)
+	# router.connect(router2)
+	# router.connect(router3)
 
+	# while True:
+	print("Here")
+	if route1to2 > route1to3:
+		router12router3.sendall(bytes(message,"utf-8"))
+		reply = router12router3.recv(1024).decode("utf-8")
+	else:
+		router12router2.sendall(bytes(message, "utf-8"))
+		reply = router12router2.recv(1024).decode("utf-8")
 
-# while True:
-	router2server.sendall(bytes(message,  "utf-8"))
-	#received_message = received_message.decode("utf-8")
-	
+	print("Here")
+	# received_message = received_message.decode("utf-8")
+
 	# parsing the packet
 	# source_mac = received_message[0:17]
 	# destination_mac = received_message[17:34]
@@ -73,9 +84,11 @@ while True:
 	# destination_ip = received_message[45:56]
 	# message = received_message[56:]
 
-	# print("The packet received:\n Source MAC address: {source_mac}, Destination MAC address: {destination_mac}".format(source_mac = source_mac, destination_mac = destination_mac))
+	# print("The packet received:\n Source MAC address: {source_mac},
+	# Destination MAC address: {destination_mac}".format(source_mac = source_mac, destination_mac = destination_mac))
 
-	# print("\nSource IP address: {source_ip}, Destination IP address: {destination_ip}".format(source_ip=source_ip, destination_ip=destination_ip))
+	# print("\nSource IP address: {source_ip},
+	# Destination IP address: {destination_ip}".format(source_ip=source_ip, destination_ip=destination_ip))
 
 	# print("\n Message: " + message)
 
@@ -89,9 +102,9 @@ while True:
 	# destination_socket.send(bytes(packet, "utf-8"))
 	# time.sleep(2)
 
-	reply = router2server.recv(1024).decode("utf-8")
+	clientRouter.sendall(bytes(reply, "utf-8"))
 
-	clientRouter.sendall(bytes(message, "utf-8"))
+
 
 
 
