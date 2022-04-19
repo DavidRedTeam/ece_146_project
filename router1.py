@@ -46,11 +46,35 @@ router3_mac = "05:10:0A:DF:5A:4A"
 # keeps track of client MAC addresses TODO: add more clients
 # arp_table_mac = {client1_ip: client1_mac, router2_ip: router2_mac, router3_ip: router3_mac}
 
+def create_route(destination, next_hop, hop_count):
+	return routes(destination, next_hop, hop_count)
 
+class routes:
+	def __init__(self, destination, next_hop, hop_count):
+		self.destination = Destination
+		self.next_hop = next_hop
+		self.hop_count = hop_count
+
+	def getDestionation(self):
+		return self.destination
+
+	def getnext_hop(self):
+		return self.next_hop
+
+	def gethop_count(self):
+		return self.hop_count
+
+server_ip = "192.168.0.1"
 # client1 = None
+#router_table = {Destination: [next_hop_port, hop count]}
+
 route1to2 = 2
 route1to3 = 1
 clientRouter, address = router2client.accept()
+router_table = []
+router_table.append(create_route(server_ip, router3, route1to3))
+router_table.append(create_route(server_ip, router2, router1to2))
+
 if clientRouter:
 	print("Client Connected")
 

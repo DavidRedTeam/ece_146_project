@@ -57,7 +57,6 @@ if fromrouter1:
 if fromrouter2:
 	print("Router 2 connected")
 
-
 # elif(router2 == None):
 # router2 = router2Router
 # print("Router 2 is online")
