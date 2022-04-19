@@ -49,9 +49,10 @@ router3_mac = "05:10:0A:DF:5A:4A"
 def create_route(destination, next_hop, hop_count):
 	return routes(destination, next_hop, hop_count)
 
+#can add more variables for EIGRP
 class routes:
 	def __init__(self, destination, next_hop, hop_count):
-		self.destination = Destination
+		self.destination = destination
 		self.next_hop = next_hop
 		self.hop_count = hop_count
 
@@ -73,7 +74,7 @@ route1to3 = 1
 clientRouter, address = router2client.accept()
 router_table = []
 router_table.append(create_route(server_ip, router3, route1to3))
-router_table.append(create_route(server_ip, router2, router1to2))
+router_table.append(create_route(server_ip, router2, route1to2))
 
 if clientRouter:
 	print("Client Connected")
@@ -91,7 +92,7 @@ while True:
 
 	# while True:
 	print("Here")
-	if route1to2 > route1to3:
+	if router_table[1].gethop_count() > router_table[0].gethop_count():
 		router12router3.sendall(bytes(message,"utf-8"))
 		reply = router12router3.recv(1024).decode("utf-8")
 	else:

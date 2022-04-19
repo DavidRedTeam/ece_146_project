@@ -29,6 +29,9 @@ router22router1.listen(1)
 
 # router1 = None
 
+
+
+
 # while (router1 == None):
 router2Router, address = router22router1.accept()
 
