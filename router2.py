@@ -29,6 +29,15 @@ router3_mac = "05:10:0A:DF:5A:4A"
 server_ip = "192.168.0.1"
 server_mac = "12:AB:6A:DD:C10"
 
+#Interfaces and their IP's (Serial does not have mac addresses)
+#Router1 <-> router2
+gigEth0_1_1_ip = "192.168.2.2"
+gigEth0_1_1_mac = "05:10:0A:DC:35:AF"
+
+#router2 <-> router3
+gigEth0_1_0_ip = "192.168.4.1"
+gigEth0_1_0_mac = "05:10:0A:AA:FF:54"
+
 # connect to router3
 # router3 = ("Localhost", 2003)
 def bandwidth_scaling(bandwidth):
@@ -83,36 +92,30 @@ router_table.append(create_route(server_ip, router3, route2to3))
 # arp_table_mac = {router1_ip: router1_mac}
 
 while True:
-	message = router2Router.recv(1024).decode("utf-8")
-	print(message)
-	# parsing the packet
-	#  source_mac = received_message[0:17]
-	# destination_mac = received_message[17:34]
-	# source_ip = received_message[34:45]
-	# destination_ip = received_message[45:56]
-	# message = received_message[56:]
+    message = router2Router.recv(1024).decode("utf-8")
+    message = "05:10:0A:BB:A1:C8" + gigEth0_1_0_mac + message[34:45] + message[45:56] + message[56:]
+    # parsing the packet
+    # source_mac = received_message[0:17]
+    # destination_mac = received_message[17:34]
+    # source_ip = received_message[34:45]
+    # destination_ip = received_message[45:56]
+    # message = received_message[56:]
+    print(message)
+    router22router3.sendall(bytes(message, "utf-8"))
 
-	router22router3.sendall(bytes(message, "utf-8"))
-
-	# print("The packet received:\n Source MAC address: {source_mac},
+    # print("The packet received:\n Source MAC address: {source_mac},
 	# Destination MAC address: {destination_mac}".format(source_mac = source_mac, destination_mac = destination_mac))
-
 	# print("\nSource IP address: {source_ip},
 	# Destination IP address: {destination_ip}".format(source_ip=source_ip, destination_ip=destination_ip))
-
 	# print("\n Message: " + message)
-
 	# ethernet_header = router_mac + arp_table_mac[destination_ip]
-
 	# IP_header = source_ip + destination_ip
-
 	# packet = ethernet_header + IP_header + message
-
 	# destination_socket = arp_table_socket[destination_ip]
-
 	# destination_socket.send(bytes(packet, "utf-8"))
 	# time.sleep(2)
 
-	reply = router22router3.recv(1024).decode("utf-8")
-	print(reply[56:0])
-	router2Router.sendall(bytes(reply, "utf-8"))
+    reply = router22router3.recv(1024).decode("utf-8")
+    messageEthernet = "05:10:0A:CZ:3A:2F" + gigEth0_1_1_mac + reply[34:45] + reply[45:56] + reply[56:]
+    print("Ethernet Reply: ", messageEthernet)
+    router2Router.sendall(bytes(messageEthernet, "utf-8"))

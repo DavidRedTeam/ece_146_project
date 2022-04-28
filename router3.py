@@ -31,6 +31,19 @@ router3_mac = "05:10:0A:DF:5A:4A"
 server_ip = "192.168.0.1"
 server_mac = "12:AB:6A:DD:C10"
 
+# Interfaces and their IP's (Serial does not have mac addresses)
+# router3 <-> router1
+#serial0_1_0 = "192.168.3.1"
+
+# router3 <-> router2
+gigEth0_1_0_ip = "192.168.4.2"
+gigEth0_1_0_mac = "05:10:0A:BB:A1:C8"
+
+# router3 <-> Server
+gigEth0_0_1_ip = "192.168.5.1"
+gigEth0_0_1_mac = "05:10:0A:DF:5A:4A"
+
+
 
 def bandwidth_scaling(bandwidth):
     bandwidth_scaled = (10000000 / bandwidth) * 256
@@ -97,13 +110,19 @@ message2 = " "
 while True:
     try:
         message1 = fromrouter1.recv(1024).decode("utf-8")
+
         print("sending to server")
-        toServer.sendall(bytes(message1, "utf-8"))
+        messageEthernet = "12:AB:6A:DD:CC:10" + gigEth0_0_1_mac + message1
+        print("Ethernet: ", messageEthernet)
+        toServer.sendall(bytes(messageEthernet, "utf-8"))
         print("receiving from server")
         reply = toServer.recv(1024).decode("utf-8")
+
+        messageSerial = reply[34:45] + reply[45:56] + reply[56:]
+        print("Serial Reply: ", messageSerial)
         if router_table[0].gethop_count() < router_table[1].gethop_count():
             print("sending to router1")
-            fromrouter1.sendall(bytes(reply, "utf-8"))
+            fromrouter1.sendall(bytes(messageSerial, "utf-8"))
             fromrouter1.setblocking(1)
 
     except socket.timeout:
@@ -111,16 +130,19 @@ while True:
 
     try:
         message2 = fromrouter2.recv(1024).decode("utf-8")
-        toServer.sendall(bytes(message2, "utf-8"))
+        messageEthernet = "12:AB:6A:DD:CC:10" + gigEth0_0_1_mac + message2[34:45] + message2[45:56] + message2[56:]
+        print("Ethernet: ", messageEthernet)
+        toServer.sendall(bytes(messageEthernet, "utf-8"))
         reply = toServer.recv(1024).decode("utf-8")
-        if router_table[1].gethop_count() < router_table[0].gethop_count():
+        messageEthernet = "05:10:0A:AA:FF:54" + gigEth0_1_0_mac + reply[34:45] + reply[45:56] + reply[56:]
+        print("to router 2: " , messageEthernet)
+        if router_table[1].gethop_count() > router_table[0].gethop_count():
             print("sending to router2")
-            fromrouter2.sendall(bytes(reply, "utf-8"))
+            fromrouter2.sendall(bytes(messageEthernet, "utf-8"))
             fromrouter2.setblocking(1)
     except socket.timeout:
         print("router 2 timeout")
 
-    print("Message 1 is ", message1[56:], " and Message 2 is ", message2[56:])
 # parsing the packet
 # source_mac = received_message[0:17]
 # destination_mac = received_message[17:34]
