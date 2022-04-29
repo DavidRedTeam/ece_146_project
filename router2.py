@@ -62,31 +62,46 @@ router2Router, address = router22router1.accept()
 if router2Router:
 	print("Router 1 is connected")
 
-def create_route(destination, next_hop, hop_count):
-    return routes(destination, next_hop, hop_count)
+router2torouter1_b = 1000     #router2 to router1 bandwidth
+router2torouter1_d = 100	  #router2 to router1 delay
+
+router2torouter3_b = 3000    #router2 to router3 bandwidth
+router2torouter3_d = 200	 #router2 to router3 bandwidth
 
 
+
+def calc_metric(bandwidth, delay):
+	return 256 * ((pow(10, 7) / bandwidth) + (delay / 10))
+
+def create_route(destination, next_hop, hop_count, metric):
+	return routes(destination, next_hop, hop_count, metric)
+
+# can add more variables for EIGRP
 class routes:
-    def __init__(self, destination, next_hop, hop_count):
-        self.destination = destination
-        self.next_hop = next_hop
-        self.hop_count = hop_count
+	def __init__(self, destination, next_hop, hop_count, metric):
+		self.destination = destination
+		self.next_hop = next_hop
+		self.hop_count = hop_count
+		self.metric = metric
 
-    def getDestionation(self):
-        return self.destination
+	def getDestionation(self):
+		return self.destination
 
-    def getnext_hop(self):
-        return self.next_hop
+	def getnext_hop(self):
+		return self.next_hop
 
-    def gethop_count(self):
-        return self.hop_count
+	def gethop_count(self):
+		return self.hop_count
+	def getmetric(self):
+		return self.metric
 
 route2to1 = 1
 route2to3 = 1
-
+router2to1_m = calc_metric(router2torouter1_b, router2torouter1_d)
+router2to3_m = calc_metric(router2torouter3_b, router2torouter3_d)
 router_table = []
-router_table.append(create_route(server_ip, router1, route2to1))
-router_table.append(create_route(server_ip, router3, route2to3))
+router_table.append(create_route(server_ip, router1, route2to1, router2to1_m))
+router_table.append(create_route(server_ip, router3, route2to3, router2to3_m))
 # TODO: FIX ARP TABLE TO INCLUDE THE OTHER ROUTERS
 # arp_table_socket = {router1_ip: router1}
 # arp_table_mac = {router1_ip: router1_mac}

@@ -55,21 +55,37 @@ router3_mac = "05:10:0A:DF:5A:4A"
 # Listen for clients, number for listen can be change for the amount of clients
 
 
+#METRICS
+router1torouter2_b = 1000 #router1 to router2 bandwidth
+router1torouter2_d = 100	  #router1 to router2 delay
+
+router1torouter3_b = 2000 #router1 to router3 bandwidth
+router1torouter3_d = 300   #router1 to router3 delay
+
+router2torouter3_b = 3000    #router2 to router3 bandwidth
+router2torouter3_d = 200	 #router2 to router3 bandwidth
+
+
+def calc_metric(bandwidth, delay):
+	return 256 * ((pow(10, 7) / bandwidth) + (delay / 10))
+
+
 # TODO: FIX ARP TABLE TO INCLUDE THE OTHER ROUTERS
 # simple arp table, keeps track of client IP addresses TODO: add more clients
 # arp_table_socket = {client1_ip: client1, router2_ip: router2, router3_ip: router3}
 # keeps track of client MAC addresses TODO: add more clients
 # arp_table_mac = {client1_ip: client1_mac, router2_ip: router2_mac, router3_ip: router3_mac}
 
-def create_route(destination, next_hop, hop_count):
-	return routes(destination, next_hop, hop_count)
+def create_route(destination, next_hop, hop_count, metric):
+	return routes(destination, next_hop, hop_count, metric)
 
 # can add more variables for EIGRP
 class routes:
-	def __init__(self, destination, next_hop, hop_count):
+	def __init__(self, destination, next_hop, hop_count, metric):
 		self.destination = destination
 		self.next_hop = next_hop
 		self.hop_count = hop_count
+		self.metric = metric
 
 	def getDestionation(self):
 		return self.destination
@@ -79,6 +95,8 @@ class routes:
 
 	def gethop_count(self):
 		return self.hop_count
+	def getmetric(self):
+		return self.metric
 
 server_ip = "192.168.0.1"
 # client1 = None
@@ -88,8 +106,11 @@ route1to2 = 1
 route1to3 = 2
 clientRouter, address = router2client.accept()
 router_table = []
-router_table.append(create_route(server_ip, router3, route1to3))
-router_table.append(create_route(server_ip, router2, route1to2))
+router2to3_m = calc_metric(router2torouter3_b, router2torouter3_d)
+router1to2_m = calc_metric(router1torouter2_b, router1torouter2_d)
+router1to3_m = calc_metric(router1torouter3_b, router1torouter3_d)
+router_table.append(create_route(server_ip, router3, route1to3, router1to3_m))
+router_table.append(create_route(server_ip, router2, route1to2, router1to2_m + router2to3_m))
 
 if clientRouter:
 	print("Client Connected")
@@ -115,7 +136,7 @@ while True:
 	# router.connect(router3)
 
 	# while True:
-	if router_table[1].gethop_count() > router_table[0].gethop_count():
+	if router_table[1].getmetric() > router_table[0].getmetric():
 		print("Serial: ", serialSend)
 		router12router3.sendall(bytes(serialSend,"utf-8"))
 		reply = router12router3.recv(1024).decode("utf-8")

@@ -77,31 +77,47 @@ if fromrouter2:
 # arp_table_mac = {router1_ip: router1_mac, router2_ip: router2_mac, server_ip: server_mac}
 
 # router2Router.connect(server)
-def create_route(destination, next_hop, hop_count):
-    return routes(destination, next_hop, hop_count)
+router3torouter1_b = 2000 #router1 to router3 bandwidth
+router3torouter1_d = 300   #router1 to router3 delay
 
+router3torouter2_b = 3000 #router3 to router2 bandwidth
+router3torouter2_d = 200 #router3 to router2 delay
+
+router2torouter1_b = 1000     #router2 to router1 bandwidth
+router2torouter1_d = 100	  #router2 to router1 delay
+
+def calc_metric(bandwidth, delay):
+	return 256 * ((pow(10, 7) / bandwidth) + (delay / 10))
+
+def create_route(destination, next_hop, hop_count, metric):
+	return routes(destination, next_hop, hop_count, metric)
 
 class routes:
-    def __init__(self, destination, next_hop, hop_count):
-        self.destination = destination
-        self.next_hop = next_hop
-        self.hop_count = hop_count
+	def __init__(self, destination, next_hop, hop_count, metric):
+		self.destination = destination
+		self.next_hop = next_hop
+		self.hop_count = hop_count
+		self.metric = metric
 
-    def getDestionation(self):
-        return self.destination
+	def getDestionation(self):
+		return self.destination
 
-    def getnext_hop(self):
-        return self.next_hop
+	def getnext_hop(self):
+		return self.next_hop
 
-    def gethop_count(self):
-        return self.hop_count
+	def gethop_count(self):
+		return self.hop_count
+	def getmetric(self):
+		return self.metric
 
 route3to1 = 1
 route3to2 = 2
-
+router3to1_m = calc_metric(router3torouter1_b, router3torouter1_d)
+router3to2_m = calc_metric(router3torouter2_b, router3torouter2_d)
+router2to1_m = calc_metric(router2torouter1_b, router2torouter1_d)
 router_table = []
-router_table.append(create_route(server_ip, router1, route3to1))
-router_table.append(create_route(server_ip, router2, route3to2))
+router_table.append(create_route(server_ip, router1, route3to1, router3to1_m))
+router_table.append(create_route(server_ip, router2, route3to2, router3to2_m + router2to1_m))
 
 fromrouter1.settimeout(1)
 fromrouter2.settimeout(1)
@@ -120,7 +136,7 @@ while True:
 
         messageSerial = reply[34:45] + reply[45:56] + reply[56:]
         print("Serial Reply: ", messageSerial)
-        if router_table[0].gethop_count() < router_table[1].gethop_count():
+        if router_table[0].getmetric() < router_table[1].getmetric():
             print("sending to router1")
             fromrouter1.sendall(bytes(messageSerial, "utf-8"))
             fromrouter1.setblocking(1)
@@ -136,7 +152,7 @@ while True:
         reply = toServer.recv(1024).decode("utf-8")
         messageEthernet = "05:10:0A:AA:FF:54" + gigEth0_1_0_mac + reply[34:45] + reply[45:56] + reply[56:]
         print("to router 2: " , messageEthernet)
-        if router_table[1].gethop_count() > router_table[0].gethop_count():
+        if router_table[1].getmetric() > router_table[0].getmetric():
             print("sending to router2")
             fromrouter2.sendall(bytes(messageEthernet, "utf-8"))
             fromrouter2.setblocking(1)
