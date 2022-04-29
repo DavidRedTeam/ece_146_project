@@ -62,11 +62,11 @@ router2Router, address = router22router1.accept()
 if router2Router:
 	print("Router 1 is connected")
 
-router2torouter1_b = 1000     #router2 to router1 bandwidth
-router2torouter1_d = 100	  #router2 to router1 delay
+router2torouter1_b = 5000     #router2 to router1 bandwidth
+router2torouter1_d = 500	  #router2 to router1 delay
 
-router2torouter3_b = 3000    #router2 to router3 bandwidth
-router2torouter3_d = 200	 #router2 to router3 bandwidth
+router2torouter3_b = 5000    #router2 to router3 bandwidth
+router2torouter3_d = 600	 #router2 to router3 bandwidth
 
 
 
@@ -92,6 +92,7 @@ class routes:
 
 	def gethop_count(self):
 		return self.hop_count
+
 	def getmetric(self):
 		return self.metric
 
@@ -116,6 +117,7 @@ while True:
     # destination_ip = received_message[45:56]
     # message = received_message[56:]
     print(message)
+    time.sleep(router2torouter3_d/10000)
     router22router3.sendall(bytes(message, "utf-8"))
 
     # print("The packet received:\n Source MAC address: {source_mac},
@@ -130,6 +132,7 @@ while True:
 	# destination_socket.send(bytes(packet, "utf-8"))
 	# time.sleep(2)
 
+    time.sleep(router2torouter1_d/10000)
     reply = router22router3.recv(1024).decode("utf-8")
     messageEthernet = "05:10:0A:CZ:3A:2F" + gigEth0_1_1_mac + reply[34:45] + reply[45:56] + reply[56:]
     print("Ethernet Reply: ", messageEthernet)

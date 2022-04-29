@@ -78,13 +78,13 @@ if fromrouter2:
 
 # router2Router.connect(server)
 router3torouter1_b = 2000 #router1 to router3 bandwidth
-router3torouter1_d = 300   #router1 to router3 delay
+router3torouter1_d = 600   #router1 to router3 delay
 
-router3torouter2_b = 3000 #router3 to router2 bandwidth
-router3torouter2_d = 200 #router3 to router2 delay
+router3torouter2_b = 5000 #router3 to router2 bandwidth
+router3torouter2_d = 600 #router3 to router2 delay
 
-router2torouter1_b = 1000     #router2 to router1 bandwidth
-router2torouter1_d = 100	  #router2 to router1 delay
+router2torouter1_b = 5000     #router2 to router1 bandwidth
+router2torouter1_d = 500	  #router2 to router1 delay
 
 def calc_metric(bandwidth, delay):
 	return 256 * ((pow(10, 7) / bandwidth) + (delay / 10))
@@ -125,6 +125,7 @@ message1 = " "
 message2 = " "
 while True:
     try:
+        time.sleep(router3torouter1_d/10000)
         message1 = fromrouter1.recv(1024).decode("utf-8")
 
         print("sending to server")
@@ -132,12 +133,14 @@ while True:
         print("Ethernet: ", messageEthernet)
         toServer.sendall(bytes(messageEthernet, "utf-8"))
         print("receiving from server")
+        time.sleep(router3torouter1_d/10000)
         reply = toServer.recv(1024).decode("utf-8")
 
         messageSerial = reply[34:45] + reply[45:56] + reply[56:]
         print("Serial Reply: ", messageSerial)
         if router_table[0].getmetric() < router_table[1].getmetric():
             print("sending to router1")
+            time.sleep(router3torouter1_d/10000)
             fromrouter1.sendall(bytes(messageSerial, "utf-8"))
             fromrouter1.setblocking(1)
 
@@ -145,15 +148,18 @@ while True:
         print("router 1 timeout")
 
     try:
+        time.sleep(router3torouter2_d/10000)
         message2 = fromrouter2.recv(1024).decode("utf-8")
         messageEthernet = "12:AB:6A:DD:CC:10" + gigEth0_0_1_mac + message2[34:45] + message2[45:56] + message2[56:]
         print("Ethernet: ", messageEthernet)
         toServer.sendall(bytes(messageEthernet, "utf-8"))
+        time.sleep(router3torouter2_d/10000)
         reply = toServer.recv(1024).decode("utf-8")
         messageEthernet = "05:10:0A:AA:FF:54" + gigEth0_1_0_mac + reply[34:45] + reply[45:56] + reply[56:]
         print("to router 2: " , messageEthernet)
-        if router_table[1].getmetric() > router_table[0].getmetric():
+        if router_table[1].getmetric() < router_table[0].getmetric():
             print("sending to router2")
+            time.sleep(router3torouter2_d/10000)
             fromrouter2.sendall(bytes(messageEthernet, "utf-8"))
             fromrouter2.setblocking(1)
     except socket.timeout:

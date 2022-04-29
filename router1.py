@@ -56,14 +56,14 @@ router3_mac = "05:10:0A:DF:5A:4A"
 
 
 #METRICS
-router1torouter2_b = 1000 #router1 to router2 bandwidth
-router1torouter2_d = 100	  #router1 to router2 delay
+router1torouter2_b = 5000 #router1 to router2 bandwidth
+router1torouter2_d = 500	  #router1 to router2 delay
 
 router1torouter3_b = 2000 #router1 to router3 bandwidth
-router1torouter3_d = 300   #router1 to router3 delay
+router1torouter3_d = 600   #router1 to router3 delay
 
-router2torouter3_b = 3000    #router2 to router3 bandwidth
-router2torouter3_d = 200	 #router2 to router3 bandwidth
+router2torouter3_b = 5000    #router2 to router3 bandwidth
+router2torouter3_d = 400	 #router2 to router3 bandwidth
 
 
 def calc_metric(bandwidth, delay):
@@ -95,6 +95,7 @@ class routes:
 
 	def gethop_count(self):
 		return self.hop_count
+
 	def getmetric(self):
 		return self.metric
 
@@ -138,18 +139,24 @@ while True:
 	# while True:
 	if router_table[1].getmetric() > router_table[0].getmetric():
 		print("Serial: ", serialSend)
+		time.sleep(router1torouter3_d/10000)
 		router12router3.sendall(bytes(serialSend,"utf-8"))
+		time.sleep(router1torouter3_d/10000)
 		reply = router12router3.recv(1024).decode("utf-8")
 		ethernetReply = client_mac + gigEth0_0_0_mac + reply
 		print("to Client: ", ethernetReply)
+		#time.sleep(router1torouter3_d/10000)
 		clientRouter.sendall(bytes(ethernetReply, "utf-8"))
 	else:
 		ethernetReply = "05:10:0A:DC:35:AF" + gigEth0_1_1_mac + serialSend
 		print("Ethernet reply ", ethernetReply)
+		time.sleep(router1torouter3_d/10000)
 		router12router2.sendall(bytes(ethernetReply, "utf-8"))
+		time.sleep(router1torouter2_d/10000)
 		reply = router12router2.recv(1024).decode("utf-8")
 		reply = client_mac + gigEth0_0_0_mac + reply[34:45] + reply[45:56] + reply[56:]
 		print("Ethernet Response :", reply)
+		#time.sleep(router1torouter2_d/10000)
 		clientRouter.sendall(bytes(reply, "utf-8"))
 
 	# received_message = received_message.decode("utf-8")
