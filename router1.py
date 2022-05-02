@@ -59,7 +59,7 @@ router3_mac = "05:10:0A:DF:5A:4A"
 router1torouter2_b = 5000 #router1 to router2 bandwidth
 router1torouter2_d = 500	  #router1 to router2 delay
 
-router1torouter3_b = 2000 #router1 to router3 bandwidth
+router1torouter3_b = 2000  #router1 to router3 bandwidth
 router1torouter3_d = 600   #router1 to router3 delay
 
 router2torouter3_b = 5000    #router2 to router3 bandwidth
