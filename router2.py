@@ -1,5 +1,6 @@
 import socket
 import time
+from venv import create
 
 #hop metric
 hop_count_router1 = 2
@@ -69,9 +70,8 @@ router2torouter3_b = 5000    #router2 to router3 bandwidth
 router2torouter3_d = 600	 #router2 to router3 bandwidth
 
 
-
 def calc_metric(bandwidth, delay):
-	return 256 * ((pow(10, 7) / bandwidth) + (delay / 10))
+	return int(256 * ((pow(10, 7) / bandwidth) + (delay / 10)))
 
 def create_route(destination, next_hop, hop_count, metric):
 	return routes(destination, next_hop, hop_count, metric)
@@ -84,7 +84,7 @@ class routes:
 		self.hop_count = hop_count
 		self.metric = metric
 
-	def getDestionation(self):
+	def getDestination(self):
 		return self.destination
 
 	def getnext_hop(self):
@@ -101,11 +101,64 @@ route2to3 = 1
 router2to1_m = calc_metric(router2torouter1_b, router2torouter1_d)
 router2to3_m = calc_metric(router2torouter3_b, router2torouter3_d)
 router_table = []
-router_table.append(create_route(server_ip, router1, route2to1, router2to1_m))
-router_table.append(create_route(server_ip, router3, route2to3, router2to3_m))
 # TODO: FIX ARP TABLE TO INCLUDE THE OTHER ROUTERS
 # arp_table_socket = {router1_ip: router1}
 # arp_table_mac = {router1_ip: router1_mac}
+
+topology_table = []
+
+while True:
+	message = router2Router.recv(1024).decode("utf-8")
+	#print(message)
+	message_split = message.split('|')
+	#print(message_split)
+	metric_one = int(message_split[0].split(' ')[1])
+	metric_two = int(message_split[1].split(' ')[1])
+	metric_three = int(message_split[2].split(' ')[1])
+	destination1 = message_split[0].split(' ')[0]
+	next_hop1 = message_split[0].split(' ')[4]
+	destination2 = message_split[1].split(' ')[0]
+	next_hop2 = message_split[1].split(' ')[4]
+	destination3 = message_split[2].split(' ')[0]
+	next_hop3 = message_split[2].split(' ')[4]
+
+	topology_table.append(create_route(destination1, next_hop1, 1, metric_one))
+	topology_table.append(create_route(destination2, next_hop2, 1, metric_two))
+	topology_table.append(create_route(destination3, next_hop3, 1, metric_three))
+
+	message = "192.168.3.0/24 " + str(router2to1_m) + " via connected " + gigEth0_1_1_ip + "|192.168.4.0/24 " + str(router2to3_m) + " via connected " + gigEth0_1_0_ip
+
+	router2Router.sendall(bytes(message, "utf-8"))
+	router22router3.sendall(bytes(message, "utf-8"))
+
+	reply = router22router3.recv(1024).decode("utf-8")
+	reply_split = reply.split('|')
+	metric2_one = int(reply_split[0].split(' ')[1])
+	metric2_two = int(reply_split[1].split(' ')[1])
+	metric2_three = int(reply_split[2].split(' ')[1])
+	destination21 = reply_split[0].split(' ')[0]
+	next2_hop1 = reply_split[0].split(' ')[4]
+	destination22 = reply_split[1].split(' ')[0]
+	next2_hop2 = reply_split[1].split(' ')[4]
+	destination23 = reply_split[2].split(' ')[0]
+	next2_hop3 = reply_split[2].split(' ')[4]
+
+	topology_table.append(create_route(destination21, next2_hop1, 1, metric2_one))
+	topology_table.append(create_route(destination22, next2_hop2, 1, metric2_two))
+	topology_table.append(create_route(destination23, next2_hop3, 1, metric2_three))
+	if len(topology_table) > 4:
+		break
+
+
+
+for route in topology_table:
+	router_table.append(route)
+
+router_table.pop(3)
+
+for route in router_table:
+	print(route.getDestination())
+
 
 while True:
     message = router2Router.recv(1024).decode("utf-8")
@@ -131,7 +184,6 @@ while True:
 	# destination_socket = arp_table_socket[destination_ip]
 	# destination_socket.send(bytes(packet, "utf-8"))
 	# time.sleep(2)
-
     time.sleep(router2torouter1_d/10000)
     reply = router22router3.recv(1024).decode("utf-8")
     messageEthernet = "05:10:0A:CZ:3A:2F" + gigEth0_1_1_mac + reply[34:45] + reply[45:56] + reply[56:]
