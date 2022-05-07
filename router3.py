@@ -77,11 +77,11 @@ if fromrouter2:
 # arp_table_mac = {router1_ip: router1_mac, router2_ip: router2_mac, server_ip: server_mac}
 
 # router2Router.connect(server)
-router3torouter1_b = 2000 #router1 to router3 bandwidth
+router3torouter1_b = 2000  #router1 to router3 bandwidth
 router3torouter1_d = 600   #router1 to router3 delay
 
-router3torouter2_b = 5000 #router3 to router2 bandwidth
-router3torouter2_d = 600 #router3 to router2 delay
+router3torouter2_b = 5000  #router3 to router2 bandwidth
+router3torouter2_d = 600   #router3 to router2 delay
 
 router2torouter1_b = 5000     #router2 to router1 bandwidth
 router2torouter1_d = 500	  #router2 to router1 delay
@@ -147,7 +147,7 @@ while len(topology_table) < 4:
 			message = "192.168.2.0/24 " + str(router3to1_m) + " via connected Serial0/0/0" " |192.168.4.0/24 " + str(router3to2_m) + " via connected " + gigEth0_1_0_ip + " |192.168.5.0/24 " + str(0) + " via connected " + gigEth0_0_1_ip
 
 			fromrouter1.sendall(bytes(message, "utf-8"))
-			fromrouter1.setblocking(1)
+			#fromrouter1.setblocking(1)
 			# if len(topology_table) > 4:
 			# 	break
 
@@ -170,7 +170,7 @@ while len(topology_table) < 4:
 
 			message = "192.168.2.0/24 " + str(router3to1_m) + " via connected Serial0/0/0" " |192.168.4.0/24 " + str(router3to2_m) + " via connected " + gigEth0_1_0_ip + " |192.168.5.0/24 " + str(0) + " via connected " + gigEth0_0_1_ip
 			fromrouter2.sendall(bytes(message, "utf-8"))
-			fromrouter2.setblocking(1)
+			#fromrouter2.setblocking(1)
 			# if len(topology_table) > 4:
 			# 	break
 	except socket.timeout:

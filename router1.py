@@ -184,28 +184,28 @@ while True:
 	# router.connect(router2)
 	# router.connect(router3)
 
-	while True:
-		if router_table[0].getmetric() < router_table[2].getmetric():
-			print("Serial: ", serialSend)
-			time.sleep(router1torouter3_d/10000)
-			router12router3.sendall(bytes(serialSend,"utf-8"))
-			time.sleep(router1torouter3_d/10000)
-			reply = router12router3.recv(1024).decode("utf-8")
-			ethernetReply = client_mac + gigEth0_0_0_mac + reply
-			print("to Client: ", ethernetReply)
-			time.sleep(router1torouter3_d/10000)
-			clientRouter.sendall(bytes(ethernetReply, "utf-8"))
-		else:
-			ethernetReply = "05:10:0A:DC:35:AF" + gigEth0_1_1_mac + serialSend
-			print("Ethernet reply ", ethernetReply)
-			time.sleep(router1torouter3_d/10000)
-			router12router2.sendall(bytes(ethernetReply, "utf-8"))
-			time.sleep(router1torouter2_d/10000)
-			reply = router12router2.recv(1024).decode("utf-8")
-			reply = client_mac + gigEth0_0_0_mac + reply[34:45] + reply[45:56] + reply[56:]
-			print("Ethernet Response :", reply)
-			time.sleep(router1torouter2_d/10000)
-			clientRouter.sendall(bytes(reply, "utf-8"))
+	#while True:
+	if router_table[0].getmetric() > router_table[2].getmetric():
+		print("Serial: ", serialSend)
+		time.sleep(router1torouter3_d/10000)
+		router12router3.sendall(bytes(serialSend,"utf-8"))
+		time.sleep(router1torouter3_d/10000)
+		reply = router12router3.recv(1024).decode("utf-8")
+		ethernetReply = client_mac + gigEth0_0_0_mac + reply
+		print("to Client: ", ethernetReply)
+		time.sleep(router1torouter3_d/10000)
+		clientRouter.sendall(bytes(ethernetReply, "utf-8"))
+	else:
+		ethernetReply = "05:10:0A:DC:35:AF" + gigEth0_1_1_mac + serialSend
+		print("Ethernet reply ", ethernetReply)
+		time.sleep(router1torouter3_d/10000)
+		router12router2.sendall(bytes(ethernetReply, "utf-8"))
+		time.sleep(router1torouter2_d/10000)
+		reply = router12router2.recv(1024).decode("utf-8")
+		reply = client_mac + gigEth0_0_0_mac + reply[34:45] + reply[45:56] + reply[56:]
+		print("Ethernet Response :", reply)
+		time.sleep(router1torouter2_d/10000)
+		clientRouter.sendall(bytes(reply, "utf-8"))
 
 	# received_message = received_message.decode("utf-8")
 
