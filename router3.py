@@ -28,7 +28,7 @@ router3_ip = "192.168.1.4"
 router3_mac = "05:10:0A:DF:5A:4A"
 
 # server info
-server_ip = "192.168.0.1"
+server_ip = "192.168.5.2"
 server_mac = "12:AB:6A:DD:C10"
 
 # Interfaces and their IP's (Serial does not have mac addresses)
@@ -87,7 +87,7 @@ router2torouter1_b = 5000     #router2 to router1 bandwidth
 router2torouter1_d = 500	  #router2 to router1 delay
 
 def calc_metric(bandwidth, delay):
-	return 256 * ((pow(10, 7) / bandwidth) + (delay / 10))
+	return int(256 * ((pow(10, 7) / bandwidth) + (delay / 10)))
 
 def create_route(destination, next_hop, hop_count, metric):
 	return routes(destination, next_hop, hop_count, metric)
@@ -99,7 +99,7 @@ class routes:
 		self.hop_count = hop_count
 		self.metric = metric
 
-	def getDestionation(self):
+	def getDestination(self):
 		return self.destination
 
 	def getnext_hop(self):
@@ -116,13 +116,75 @@ router3to1_m = calc_metric(router3torouter1_b, router3torouter1_d)
 router3to2_m = calc_metric(router3torouter2_b, router3torouter2_d)
 router2to1_m = calc_metric(router2torouter1_b, router2torouter1_d)
 router_table = []
-router_table.append(create_route(server_ip, router1, route3to1, router3to1_m))
-router_table.append(create_route(server_ip, router2, route3to2, router3to2_m + router2to1_m))
 
 fromrouter1.settimeout(1)
 fromrouter2.settimeout(1)
 message1 = " "
 message2 = " "
+
+topology_table = []
+
+while True:
+
+	try:
+		message1 = fromrouter1.recv(1024).decode("utf-8")
+		message_split = message1.split('|')
+		if len(message_split) == 3:
+			metric_one = int(message_split[0].split(' ')[1])
+			metric_two = int(message_split[1].split(' ')[1])
+			metric_three = int(message_split[2].split(' ')[1])
+			destination1 = message_split[0].split(' ')[0]
+			next_hop1 = message_split[0].split(' ')[4]
+			destination2 = message_split[1].split(' ')[0]
+			next_hop2 = message_split[1].split(' ')[4]
+			destination3 = message_split[2].split(' ')[0]
+			next_hop3 = message_split[2].split(' ')[4]
+
+			topology_table.append(create_route(destination1, next_hop1, 1, metric_one))
+			topology_table.append(create_route(destination2, next_hop2, 1, metric_two))
+			topology_table.append(create_route(destination3, next_hop3, 1, metric_three))
+
+			message = "192.168.2.0/24 " + str(router3to1_m) + " via connected Serial0/0/0" " |192.168.4.0/24 " + str(router3to2_m) + " via connected " + gigEth0_1_0_ip + " |192.168.5.0/24 " + str(0) + " via connected " + gigEth0_0_1_ip
+
+			fromrouter1.sendall(bytes(message, "utf-8"))
+			if len(topology_table) > 4:
+				break
+
+	except socket.timeout:
+		print("router1 timeout")
+
+	try:
+		message2 = fromrouter2.recv(1024).decode("utf-8")
+		message_split = message2.split('|')
+		if len(message_split) == 2:
+			metric_one = int(message_split[0].split(' ')[1])
+			metric_two = int(message_split[1].split(' ')[1])
+			destination1 = message_split[0].split(' ')[0]
+			next_hop1 = message_split[0].split(' ')[4]
+			destination2 = message_split[1].split(' ')[0]
+			next_hop2 = message_split[1].split(' ')[4]
+
+			topology_table.append(create_route(destination1, next_hop1, 1, metric_one))
+			topology_table.append(create_route(destination2, next_hop2, 1, metric_two))
+
+			message = "192.168.2.0/24 " + str(router3to1_m) + " via connected Serial0/0/0" " |192.168.4.0/24 " + str(router3to2_m) + " via connected " + gigEth0_1_0_ip + " |192.168.5.0/24 " + str(0) + " via connected " + gigEth0_0_1_ip
+			fromrouter2.sendall(bytes(message, "utf-8"))
+			if len(topology_table) > 4:
+				break
+	except socket.timeout:
+		print("router2 timeout")
+
+
+for route in topology_table:
+	router_table.append(route)
+
+router_table.pop(3)
+
+for route in router_table:
+	print(route.getDestination())
+
+
+
 while True:
     try:
         time.sleep(router3torouter1_d/10000)
@@ -135,10 +197,9 @@ while True:
         print("receiving from server")
         time.sleep(router3torouter1_d/10000)
         reply = toServer.recv(1024).decode("utf-8")
-
         messageSerial = reply[34:45] + reply[45:56] + reply[56:]
         print("Serial Reply: ", messageSerial)
-        if router_table[0].getmetric() < router_table[1].getmetric():
+        if router_table[1].getmetric() < router_table[3].getmetric():
             print("sending to router1")
             time.sleep(router3torouter1_d/10000)
             fromrouter1.sendall(bytes(messageSerial, "utf-8"))
@@ -157,7 +218,7 @@ while True:
         reply = toServer.recv(1024).decode("utf-8")
         messageEthernet = "05:10:0A:AA:FF:54" + gigEth0_1_0_mac + reply[34:45] + reply[45:56] + reply[56:]
         print("to router 2: " , messageEthernet)
-        if router_table[1].getmetric() < router_table[0].getmetric():
+        if router_table[3].getmetric() < router_table[1].getmetric():
             print("sending to router2")
             time.sleep(router3torouter2_d/10000)
             fromrouter2.sendall(bytes(messageEthernet, "utf-8"))

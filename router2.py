@@ -184,6 +184,7 @@ while True:
 	# destination_socket = arp_table_socket[destination_ip]
 	# destination_socket.send(bytes(packet, "utf-8"))
 	# time.sleep(2)
+
     time.sleep(router2torouter1_d/10000)
     reply = router22router3.recv(1024).decode("utf-8")
     messageEthernet = "05:10:0A:CZ:3A:2F" + gigEth0_1_1_mac + reply[34:45] + reply[45:56] + reply[56:]

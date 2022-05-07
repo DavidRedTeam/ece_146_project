@@ -2,6 +2,8 @@
 
 import socket
 import time
+import pickle
+
 
 # router socket
 router2 = ("LocalHost", 2002)
@@ -10,14 +12,11 @@ router12router2 = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 router12router2.connect(router2)
 
 
-# socket for clients to connect to
-router2client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-router2client.bind(("Localhost", 2001))
-router2client.listen(1)
 
 router3 = ("LocalHost", 2004)
 router12router3 = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 router12router3.connect(router3)
+
 
 # router mac and ip addresses of different interfaces.
 
@@ -56,18 +55,18 @@ router3_mac = "05:10:0A:DF:5A:4A"
 
 
 #METRICS
-router1torouter2_b = 5000 #router1 to router2 bandwidth
+router1torouter2_b = 5000 	  #router1 to router2 bandwidth
 router1torouter2_d = 500	  #router1 to router2 delay
 
 router1torouter3_b = 2000  #router1 to router3 bandwidth
 router1torouter3_d = 600   #router1 to router3 delay
 
 router2torouter3_b = 5000    #router2 to router3 bandwidth
-router2torouter3_d = 400	 #router2 to router3 bandwidth
+router2torouter3_d = 400	 #router2 to router3 delay
 
 
 def calc_metric(bandwidth, delay):
-	return 256 * ((pow(10, 7) / bandwidth) + (delay / 10))
+	return int(256 * ((pow(10, 7) / bandwidth) + (delay / 10)))
 
 
 # TODO: FIX ARP TABLE TO INCLUDE THE OTHER ROUTERS
@@ -87,7 +86,7 @@ class routes:
 		self.hop_count = hop_count
 		self.metric = metric
 
-	def getDestionation(self):
+	def getDestination(self):
 		return self.destination
 
 	def getnext_hop(self):
@@ -103,18 +102,71 @@ server_ip = "192.168.0.1"
 # client1 = None
 # router_table = {Destination: [next_hop_port, hop count]}
 
+# socket for clients to connect to
+
+router2client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+router2client.bind(("Localhost", 2001))
+router2client.listen(1)
+
 route1to2 = 1
 route1to3 = 2
 clientRouter, address = router2client.accept()
 router_table = []
-router2to3_m = calc_metric(router2torouter3_b, router2torouter3_d)
+#router2to3_m = calc_metric(router2torouter3_b, router2torouter3_d)
 router1to2_m = calc_metric(router1torouter2_b, router1torouter2_d)
 router1to3_m = calc_metric(router1torouter3_b, router1torouter3_d)
-router_table.append(create_route(server_ip, router3, route1to3, router1to3_m))
-router_table.append(create_route(server_ip, router2, route1to2, router1to2_m + router2to3_m))
+
+topology_table = []
 
 if clientRouter:
 	print("Client Connected")
+
+while True:
+	message = "192.168.1.0/24 "+ str(0) +" via connected " + gigEth0_0_0_ip +" |192.168.2.0/24 " + str(router1to3_m) + " via connected Serial0/0/0 |192.168.3.0/24 " + str(router1to2_m) + " via connected " + gigEth0_1_1_ip
+	router12router2.sendall(bytes(message, "utf-8"))
+	router12router3.sendall(bytes(message, "utf-8"))
+
+	reply = router12router2.recv(1024).decode("utf-8")
+	reply_split = reply.split('|')
+	metric_one = int(reply_split[0].split(' ')[1])
+	metric_two = int(reply_split[1].split(' ')[1])
+	destination1 = reply_split[0].split(' ')[0]
+	next_hop1 = reply_split[0].split(' ')[4]
+	destination2 = reply_split[1].split(' ')[0]
+	next_hop2 = reply_split[1].split(' ')[4]
+
+	topology_table.append(create_route(destination1, next_hop1, 1, metric_one))
+	topology_table.append(create_route(destination2, next_hop2, 1, metric_two))
+
+	reply2 = router12router3.recv(1024).decode("utf-8")
+	reply2_split = reply2.split('|')
+	metric2_one = int(reply2_split[0].split(' ')[1])
+	metric2_two = int(reply2_split[1].split(' ')[1])
+	metric2_three = int(reply2_split[2].split(' ')[1])
+	destination21 = reply2_split[0].split(' ')[0]
+	next2_hop1 = reply2_split[0].split(' ')[4]
+	destination22 = reply2_split[1].split(' ')[0]
+	next2_hop2 = reply2_split[1].split(' ')[4]
+	destination23 = reply2_split[2].split(' ')[0]
+	next2_hop3 = reply2_split[2].split(' ')[4]
+
+	topology_table.append(create_route(destination21, next2_hop1, 1, metric2_one))
+	topology_table.append(create_route(destination22, next2_hop2, 1, metric2_two))
+	topology_table.append(create_route(destination23, next2_hop3, 1, metric2_three))
+
+	if len(topology_table) > 4:
+		break
+
+for r in topology_table:
+	router_table.append(r)
+
+
+#Removing duplicate route manually, not the best way to implement
+router_table.pop(3)
+
+for route in router_table:
+	print(route.getDestination())
+
 
 # while (client1 == None or router2 == None or router3 == None):
 
@@ -136,28 +188,28 @@ while True:
 	# router.connect(router2)
 	# router.connect(router3)
 
-	# while True:
-	if router_table[1].getmetric() > router_table[0].getmetric():
-		print("Serial: ", serialSend)
-		time.sleep(router1torouter3_d/10000)
-		router12router3.sendall(bytes(serialSend,"utf-8"))
-		time.sleep(router1torouter3_d/10000)
-		reply = router12router3.recv(1024).decode("utf-8")
-		ethernetReply = client_mac + gigEth0_0_0_mac + reply
-		print("to Client: ", ethernetReply)
-		#time.sleep(router1torouter3_d/10000)
-		clientRouter.sendall(bytes(ethernetReply, "utf-8"))
-	else:
-		ethernetReply = "05:10:0A:DC:35:AF" + gigEth0_1_1_mac + serialSend
-		print("Ethernet reply ", ethernetReply)
-		time.sleep(router1torouter3_d/10000)
-		router12router2.sendall(bytes(ethernetReply, "utf-8"))
-		time.sleep(router1torouter2_d/10000)
-		reply = router12router2.recv(1024).decode("utf-8")
-		reply = client_mac + gigEth0_0_0_mac + reply[34:45] + reply[45:56] + reply[56:]
-		print("Ethernet Response :", reply)
-		#time.sleep(router1torouter2_d/10000)
-		clientRouter.sendall(bytes(reply, "utf-8"))
+	while True:
+		if router_table[0].getmetric() > router_table[2].getmetric():
+			print("Serial: ", serialSend)
+			time.sleep(router1torouter3_d/10000)
+			router12router3.sendall(bytes(serialSend,"utf-8"))
+			time.sleep(router1torouter3_d/10000)
+			reply = router12router3.recv(1024).decode("utf-8")
+			ethernetReply = client_mac + gigEth0_0_0_mac + reply
+			print("to Client: ", ethernetReply)
+			time.sleep(router1torouter3_d/10000)
+			clientRouter.sendall(bytes(ethernetReply, "utf-8"))
+		else:
+			ethernetReply = "05:10:0A:DC:35:AF" + gigEth0_1_1_mac + serialSend
+			print("Ethernet reply ", ethernetReply)
+			time.sleep(router1torouter3_d/10000)
+			router12router2.sendall(bytes(ethernetReply, "utf-8"))
+			time.sleep(router1torouter2_d/10000)
+			reply = router12router2.recv(1024).decode("utf-8")
+			reply = client_mac + gigEth0_0_0_mac + reply[34:45] + reply[45:56] + reply[56:]
+			print("Ethernet Response :", reply)
+			time.sleep(router1torouter2_d/10000)
+			clientRouter.sendall(bytes(reply, "utf-8"))
 
 	# received_message = received_message.decode("utf-8")
 
