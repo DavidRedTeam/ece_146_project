@@ -63,11 +63,12 @@ router2Router, address = router22router1.accept()
 if router2Router:
 	print("Router 1 is connected")
 
-router2torouter1_b = 5000     #router2 to router1 bandwidth
-router2torouter1_d = 500	  #router2 to router1 delay
+print("Enter the bandwidth and delay for router2 to router1, router2 to router 3, respectively ")
+router2torouter1_b = int(input())     #router2 to router1 bandwidth 5000
+router2torouter1_d = int(input())	  #router2 to router1 delay 500
 
-router2torouter3_b = 5000    #router2 to router3 bandwidth
-router2torouter3_d = 600	 #router2 to router3 bandwidth
+router2torouter3_b = int(input())    #router2 to router3 bandwidth 5000
+router2torouter3_d = int(input())	 #router2 to router3 bandwidth 600
 
 
 def calc_metric(bandwidth, delay):

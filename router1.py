@@ -55,14 +55,15 @@ router3_mac = "05:10:0A:DF:5A:4A"
 
 
 #METRICS
-router1torouter2_b = 5000 	  #router1 to router2 bandwidth
-router1torouter2_d = 500	  #router1 to router2 delay
+print("Enter the bandwidth and delay for router1 to router2, router1 to router 3, respectively ")
+router1torouter2_b = int(input()) 	  #router1 to router2 bandwidth 5000
+router1torouter2_d = int(input())	  #router1 to router2 delay 500
 
-router1torouter3_b = 2000  #router1 to router3 bandwidth
-router1torouter3_d = 600   #router1 to router3 delay
+router1torouter3_b = int(input())  #router1 to router3 bandwidth 2000
+router1torouter3_d = int(input())  #router1 to router3 delay 600
 
-router2torouter3_b = 5000    #router2 to router3 bandwidth
-router2torouter3_d = 400	 #router2 to router3 delay
+#router2torouter3_b = 5000    #router2 to router3 bandwidth 5000
+#router2torouter3_d = 400	 #router2 to router3 delay 400
 
 
 def calc_metric(bandwidth, delay):

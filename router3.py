@@ -77,14 +77,15 @@ if fromrouter2:
 # arp_table_mac = {router1_ip: router1_mac, router2_ip: router2_mac, server_ip: server_mac}
 
 # router2Router.connect(server)
-router3torouter1_b = 2000  #router1 to router3 bandwidth
-router3torouter1_d = 600   #router1 to router3 delay
+print("Enter the bandwidth and delay for router3 to router1, router3 to router 2, respectively ")
+router3torouter1_b = int(input())  #router1 to router3 bandwidth 2000
+router3torouter1_d = int(input())   #router1 to router3 delay 600
 
-router3torouter2_b = 5000  #router3 to router2 bandwidth
-router3torouter2_d = 600   #router3 to router2 delay
+router3torouter2_b = int(input())  #router3 to router2 bandwidth 5000
+router3torouter2_d = int(input())   #router3 to router2 delay 600
 
-router2torouter1_b = 5000     #router2 to router1 bandwidth
-router2torouter1_d = 500	  #router2 to router1 delay
+#router2torouter1_b = 5000     #router2 to router1 bandwidth
+#router2torouter1_d = 500	  #router2 to router1 delay
 
 def calc_metric(bandwidth, delay):
 	return int(256 * ((pow(10, 7) / bandwidth) + (delay / 10)))
@@ -114,7 +115,7 @@ route3to1 = 1
 route3to2 = 2
 router3to1_m = calc_metric(router3torouter1_b, router3torouter1_d)
 router3to2_m = calc_metric(router3torouter2_b, router3torouter2_d)
-router2to1_m = calc_metric(router2torouter1_b, router2torouter1_d)
+#router2to1_m = calc_metric(router2torouter1_b, router2torouter1_d)
 router_table = []
 
 fromrouter1.settimeout(1)
