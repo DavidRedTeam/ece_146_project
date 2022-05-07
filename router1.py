@@ -185,7 +185,7 @@ while True:
 	# router.connect(router3)
 
 	while True:
-		if router_table[0].getmetric() > router_table[2].getmetric():
+		if router_table[0].getmetric() < router_table[2].getmetric():
 			print("Serial: ", serialSend)
 			time.sleep(router1torouter3_d/10000)
 			router12router3.sendall(bytes(serialSend,"utf-8"))

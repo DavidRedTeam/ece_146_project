@@ -108,9 +108,9 @@ router_table = []
 topology_table = []
 
 while len(topology_table) < 4:
-	message = router2Router.recv(1024).decode("utf-8")
+	message1 = router2Router.recv(1024).decode("utf-8")
 	#print(message)
-	message_split = message.split('|')
+	message_split = message1.split('|')
 	#print(message_split)
 	metric_one = int(message_split[0].split(' ')[1])
 	metric_two = int(message_split[1].split(' ')[1])
@@ -126,10 +126,10 @@ while len(topology_table) < 4:
 	topology_table.append(create_route(destination2, next_hop2, 1, metric_two))
 	topology_table.append(create_route(destination3, next_hop3, 1, metric_three))
 
-	message = "192.168.3.0/24 " + str(router2to1_m) + " via connected " + gigEth0_1_1_ip + "|192.168.4.0/24 " + str(router2to3_m) + " via connected " + gigEth0_1_0_ip
+	message2 = "192.168.3.0/24 " + str(router2to1_m) + " via connected " + gigEth0_1_1_ip + "|192.168.4.0/24 " + str(router2to3_m) + " via connected " + gigEth0_1_0_ip
 
-	router2Router.sendall(bytes(message, "utf-8"))
-	router22router3.sendall(bytes(message, "utf-8"))
+	router2Router.sendall(bytes(message2, "utf-8"))
+	router22router3.sendall(bytes(message2, "utf-8"))
 
 	reply = router22router3.recv(1024).decode("utf-8")
 	reply_split = reply.split('|')

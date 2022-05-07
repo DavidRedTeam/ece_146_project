@@ -182,11 +182,16 @@ for route in topology_table:
 
 router_table.pop(3)
 
+print(router_table[1].getmetric())
+print(router_table[3].getmetric())
+
+print(router_table[1].getDestination())
+print(router_table[3].getDestination())
+
 while True:
     try:
         time.sleep(router3torouter1_d/10000)
         message1 = fromrouter1.recv(1024).decode("utf-8")
-
         print("sending to server")
         messageEthernet = "12:AB:6A:DD:CC:10" + gigEth0_0_1_mac + message1
         print("Ethernet: ", messageEthernet)
@@ -215,7 +220,7 @@ while True:
         reply = toServer.recv(1024).decode("utf-8")
         messageEthernet = "05:10:0A:AA:FF:54" + gigEth0_1_0_mac + reply[34:45] + reply[45:56] + reply[56:]
         print("to router 2: " , messageEthernet)
-        if router_table[3].getmetric() < router_table[1].getmetric():
+        if router_table[1].getmetric() > router_table[3].getmetric():
             print("sending to router2")
             time.sleep(router3torouter2_d/10000)
             fromrouter2.sendall(bytes(messageEthernet, "utf-8"))
