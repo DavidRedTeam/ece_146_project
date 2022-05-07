@@ -121,7 +121,7 @@ topology_table = []
 if clientRouter:
 	print("Client Connected")
 
-while True:
+while len(topology_table) < 4:
 	message = "192.168.1.0/24 "+ str(0) +" via connected " + gigEth0_0_0_ip +" |192.168.2.0/24 " + str(router1to3_m) + " via connected Serial0/0/0 |192.168.3.0/24 " + str(router1to2_m) + " via connected " + gigEth0_1_1_ip
 	router12router2.sendall(bytes(message, "utf-8"))
 	router12router3.sendall(bytes(message, "utf-8"))
@@ -154,8 +154,8 @@ while True:
 	topology_table.append(create_route(destination22, next2_hop2, 1, metric2_two))
 	topology_table.append(create_route(destination23, next2_hop3, 1, metric2_three))
 
-	if len(topology_table) > 4:
-		break
+	# if len(topology_table) > 4:
+	# 	break
 
 for r in topology_table:
 	router_table.append(r)
@@ -163,10 +163,6 @@ for r in topology_table:
 
 #Removing duplicate route manually, not the best way to implement
 router_table.pop(3)
-
-for route in router_table:
-	print(route.getDestination())
-
 
 # while (client1 == None or router2 == None or router3 == None):
 

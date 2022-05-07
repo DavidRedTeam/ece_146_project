@@ -124,11 +124,11 @@ message2 = " "
 
 topology_table = []
 
-while True:
+while len(topology_table) < 4:
 
 	try:
-		message1 = fromrouter1.recv(1024).decode("utf-8")
-		message_split = message1.split('|')
+		message3 = fromrouter1.recv(1024).decode("utf-8")
+		message_split = message3.split('|')
 		if len(message_split) == 3:
 			metric_one = int(message_split[0].split(' ')[1])
 			metric_two = int(message_split[1].split(' ')[1])
@@ -147,15 +147,16 @@ while True:
 			message = "192.168.2.0/24 " + str(router3to1_m) + " via connected Serial0/0/0" " |192.168.4.0/24 " + str(router3to2_m) + " via connected " + gigEth0_1_0_ip + " |192.168.5.0/24 " + str(0) + " via connected " + gigEth0_0_1_ip
 
 			fromrouter1.sendall(bytes(message, "utf-8"))
-			if len(topology_table) > 4:
-				break
+			fromrouter1.setblocking(1)
+			# if len(topology_table) > 4:
+			# 	break
 
 	except socket.timeout:
 		print("router1 timeout")
 
 	try:
-		message2 = fromrouter2.recv(1024).decode("utf-8")
-		message_split = message2.split('|')
+		message3 = fromrouter2.recv(1024).decode("utf-8")
+		message_split = message3.split('|')
 		if len(message_split) == 2:
 			metric_one = int(message_split[0].split(' ')[1])
 			metric_two = int(message_split[1].split(' ')[1])
@@ -169,8 +170,9 @@ while True:
 
 			message = "192.168.2.0/24 " + str(router3to1_m) + " via connected Serial0/0/0" " |192.168.4.0/24 " + str(router3to2_m) + " via connected " + gigEth0_1_0_ip + " |192.168.5.0/24 " + str(0) + " via connected " + gigEth0_0_1_ip
 			fromrouter2.sendall(bytes(message, "utf-8"))
-			if len(topology_table) > 4:
-				break
+			fromrouter2.setblocking(1)
+			# if len(topology_table) > 4:
+			# 	break
 	except socket.timeout:
 		print("router2 timeout")
 
@@ -179,11 +181,6 @@ for route in topology_table:
 	router_table.append(route)
 
 router_table.pop(3)
-
-for route in router_table:
-	print(route.getDestination())
-
-
 
 while True:
     try:

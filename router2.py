@@ -107,7 +107,7 @@ router_table = []
 
 topology_table = []
 
-while True:
+while len(topology_table) < 4:
 	message = router2Router.recv(1024).decode("utf-8")
 	#print(message)
 	message_split = message.split('|')
@@ -146,19 +146,13 @@ while True:
 	topology_table.append(create_route(destination21, next2_hop1, 1, metric2_one))
 	topology_table.append(create_route(destination22, next2_hop2, 1, metric2_two))
 	topology_table.append(create_route(destination23, next2_hop3, 1, metric2_three))
-	if len(topology_table) > 4:
-		break
-
-
+	# if len(topology_table) > 4:
+	# 	break
 
 for route in topology_table:
 	router_table.append(route)
 
 router_table.pop(3)
-
-for route in router_table:
-	print(route.getDestination())
-
 
 while True:
     message = router2Router.recv(1024).decode("utf-8")
@@ -184,7 +178,6 @@ while True:
 	# destination_socket = arp_table_socket[destination_ip]
 	# destination_socket.send(bytes(packet, "utf-8"))
 	# time.sleep(2)
-
     time.sleep(router2torouter1_d/10000)
     reply = router22router3.recv(1024).decode("utf-8")
     messageEthernet = "05:10:0A:CZ:3A:2F" + gigEth0_1_1_mac + reply[34:45] + reply[45:56] + reply[56:]
