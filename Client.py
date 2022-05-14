@@ -1,7 +1,7 @@
 # Client that will connect to server through routers.
 # Assume arp table and routing tables are set up on routers and host and server.!!!!!!!!!
 import socket
-import time
+from timeit import default_timer as timer
 
 # This clients mac and ip static. This is the only interface
 # Fa0/0's ip and mac.
@@ -58,14 +58,16 @@ connected = True
 while connected:
     message = input("client2server>")
 
-
     outgoing_frame = outgoing_frame + message
+    start = timer()
     client.sendall(bytes(outgoing_frame, "utf-8"))
     if message.find("quit") != -1: client.close()
     outgoing_frame = outgoing_frame[0:56]
     recv_message = client.recv(1024).decode("utf-8")
-
+    stop = timer()
     deCapsulate(recv_message)
+    print("Time to receive message: ", stop - start, " seconds")
+
 
 
 

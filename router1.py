@@ -84,8 +84,9 @@ server_ip = "192.168.0.1"
 # client1 = None
 # router_table = {Destination: [next_hop_port, hop count]}
 
-route1to2 = 1
-route1to3 = 2
+#Through route1to2 ,or through route1to3  to server.
+route1to2 = 2
+route1to3 = 1
 clientRouter, address = router2client.accept()
 router_table = []
 router_table.append(create_route(server_ip, router3, route1to3))
